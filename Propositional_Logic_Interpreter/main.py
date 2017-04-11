@@ -1,29 +1,49 @@
 import re
 
 
-def operator_recognizer(expression):
-    """
-    :param expression: user's entered expression            str
-    :return: name of the operator used in the expression    str
-    """
+class Expression:
 
-    keywords = ["OR", "AND", "IF", "THEN", "NOT"]
-    and_regex = r"(\(.*\)) AND (\(.*\))( AND \(.*\))*$"
-    or_regex = r"(\(.*\)) OR (\(.*\))( OR \(.*\))*$"
-    conditional_regex = r"IF (\(.*\)) THEN (\(.*\))$"
+    def __init__(self, expression):
+        self.expression = expression
+        self.keywords = ["OR", "AND", "IF", "THEN", "NOT"]
+        self.and_regex = r"(\(.*\)) AND (\(.*\))( AND \(.*\))*$"
+        self.or_regex = r"(\(.*\)) OR (\(.*\))( OR \(.*\))*$"
+        self.conditional_regex = r"IF (\(.*\)) THEN (\(.*\))$"
 
-    if re.match(and_regex, expression):
-        return "AND"
-    elif re.match(or_regex, expression):
-        return "OR"
-    elif re.match(conditional_regex, expression):
-        return "Conditional"
-    else:
-        flag = True
-        for i in keywords:
-            if i in expression:
-                flag = False
-        if flag:
-            return "Pure"
+    def operator_recognizer(self):
+
+        keywords = ["OR", "AND", "IF", "THEN", "NOT"]
+        and_regex = r"(\(.*\)) AND (\(.*\))( AND \(.*\))*$"
+        or_regex = r"(\(.*\)) OR (\(.*\))( OR \(.*\))*$"
+        conditional_regex = r"IF (\(.*\)) THEN (\(.*\))$"
+
+        if re.match(and_regex, self.expression):
+            return "AND"
+        elif re.match(or_regex, self.expression):
+            return "OR"
+        elif re.match(conditional_regex, self.expression):
+            return "Conditional"
         else:
-            return "Broken"
+            flag = True
+            for i in keywords:
+                if i in self.expression:
+                    flag = False
+            if flag:
+                return "Pure"
+            else:
+                return "Broken"
+
+    def expression_parser(self):
+        if self.operator_recognizer() == "AND":
+            parsed_expression = self.expression.split(" AND ")
+            return parsed_expression
+
+        elif self.operator_recognizer() == "OR":
+            parsed_expression = self.expression.split(" OR ")
+            return parsed_expression
+        elif self.operator_recognizer() == "Conditional":
+            conditional_matched = re.match(self.or_regex, self.expression)
+            parsed_expression = {"IF": conditional_matched.group(1),
+                                 "THEN": conditional_matched.group(2)}
+            return parsed_expression
+
