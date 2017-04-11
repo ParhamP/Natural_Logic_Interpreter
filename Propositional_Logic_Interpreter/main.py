@@ -28,6 +28,7 @@ class Expression:
             for i in keywords:
                 if i in self.expression:
                     flag = False
+                    break
             if flag:
                 return "Pure"
             else:
@@ -47,3 +48,16 @@ class Expression:
                                  "THEN": conditional_matched.group(2)}
             return parsed_expression
 
+    def is_pure_proposition(self):
+        for i in self.expression_parser():
+            new_expression = Expression(i)
+            if new_expression.operator_recognizer() != "Pure":
+                return False
+        return True
+
+
+knowledge_dict = dict()
+
+def interpreter(expression):
+    expression_object = Expression(expression)
+    parsed_object = expression_object.expression_parser()
