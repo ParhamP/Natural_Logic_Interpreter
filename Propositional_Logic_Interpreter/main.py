@@ -3,7 +3,6 @@ import re
 knowledge_dict = dict()
 
 
-
 class Expression:
 
     def __init__(self, expression):
@@ -34,8 +33,18 @@ class Expression:
     def operator_recognizer(self):
 
         if re.match(self.or_regex, self.expression):
+            p = re.compile(self.or_regex)
+            m = re.match(p, self.expression)
+            for i in m.groups()[:-1]:
+                if "))" in i and "((" not in i or "((" in i and "))" not in i:
+                    return "AND"
             return "OR"
         elif re.match(self.and_regex, self.expression):
+            p = re.compile(self.and_regex)
+            m = re.match(p, self.expression)
+            for i in m.groups()[:-1]:
+                if "))" in i and "((" not in i or "((" in i and "))" not in i:
+                    return "OR"
             return "AND"
         elif re.match(self.conditional_regex, self.expression):
             return "Conditional"
@@ -119,7 +128,6 @@ class Expression:
             for expression in parsed_expression:
                 if expression not in knowledge_dict:
                     knowledge_dict[expression] = None
-            print(parsed_expression)
             # count to check if all elements are false
             count = 0
             for expression in parsed_expression:
@@ -157,7 +165,7 @@ class Expression:
             return None
 
     def and_temp_transform(self):
-        return self.expression + "@"
+        self.expression = self.expression + "@"
 
 
 # def is_in_dict(expression, knowledge_dict):
@@ -169,7 +177,6 @@ class Expression:
 
 
 def interpreter(expression):
-
     # Let's check to see if we have an AND operator that was part of an AND
     flag = False
     if expression[-1] == "@":
@@ -210,20 +217,10 @@ def interpreter(expression):
                 interpreter(i.expression)
 
 
-interpreter("(I Think) AND ((I Guess) OR (I play))")
-
-interpreter("(I play)")
-
-interpreter("(I go to school) OR ((I Think) AND (I play))")
-
-interpreter("(I Think) AND ((I Guess) OR (I play))")
-
-interpreter("(I play)")
-
-interpreter("(I go to school) OR ((I Think) AND (I play))")
+interpreter("(I Think) OR ((I Guess) AND (I play))")
 
 
-print(knowledge_dict)
+
 
 for i,j in enumerate(knowledge_dict):
     print(i, "---->", j, "--->", knowledge_dict[j])
