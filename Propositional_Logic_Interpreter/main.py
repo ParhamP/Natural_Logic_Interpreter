@@ -3,6 +3,7 @@ import re
 knowledge_dict = dict()
 
 
+
 class Expression:
 
     def __init__(self, expression):
@@ -11,6 +12,24 @@ class Expression:
         self.and_regex = r"(\(.*\)) AND (\(.*\))( AND \(.*\))*$"
         self.or_regex = r"(\(.*\)) OR (\(.*\))( OR \(.*\))*$"
         self.conditional_regex = r"IF (\(.*\)) THEN (\(.*\))$"
+
+    def get(self):
+        return self.expression
+
+    def set(self, new_expression):
+        self.expression = new_expression
+
+    def __eq__(self, other):
+        return self.get() == other.get()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash(self.expression)
+
+    def __str__(self):
+        return self.expression
 
     def operator_recognizer(self):
 
@@ -34,6 +53,7 @@ class Expression:
     def expression_parser(self):
         if self.operator_recognizer() == "AND":
             parsed_expression = self.expression.split(" AND ")
+
             for i in parsed_expression:
                 if "))" in i and "((" in i:
                     list_index = parsed_expression.index(i)
@@ -49,7 +69,11 @@ class Expression:
                     double_paren_index = i.index("))")
                     i = i[:double_paren_index + 1] + i[double_paren_index + 2:]
                     parsed_expression[list_index] = i
-            return parsed_expression
+            parsed_expression_list = []
+            for i in parsed_expression:
+                new_expression_object = Expression(i)
+                parsed_expression_list.append(new_expression_object)
+            return parsed_expression_list
 
         elif self.operator_recognizer() == "OR":
             parsed_expression = self.expression.split(" OR ")
@@ -66,7 +90,11 @@ class Expression:
                     list_index = parsed_expression.index(i)
                     i = i[:-1]
                     parsed_expression[list_index] = i
-            return parsed_expression
+            parsed_expression_list = []
+            for i in parsed_expression:
+                new_expression_object = Expression(i)
+                parsed_expression_list.append(new_expression_object)
+            return parsed_expression_list
         elif self.operator_recognizer() == "Conditional":
             conditional_matched = re.match(self.or_regex, self.expression)
             parsed_expression = {"IF": conditional_matched.group(1),
@@ -75,14 +103,12 @@ class Expression:
 
     def is_pure_proposition(self):
         for i in self.expression_parser():
-            new_expression = Expression(i)
-            if new_expression.operator_recognizer() != "Pure":
+            if i.operator_recognizer() != "Pure":
                 return False
         return True
 
     def resolver(self, knowledge_dict):
         if self.operator_recognizer() == "AND":
-
             parsed_expression = self.expression_parser()
             for expression in parsed_expression:
                 knowledge_dict[expression] = True
@@ -93,6 +119,7 @@ class Expression:
             for expression in parsed_expression:
                 if expression not in knowledge_dict:
                     knowledge_dict[expression] = None
+            print(parsed_expression)
             # count to check if all elements are false
             count = 0
             for expression in parsed_expression:
@@ -133,6 +160,14 @@ class Expression:
         return self.expression + "@"
 
 
+# def is_in_dict(expression, knowledge_dict):
+#     for object in knowledge_dict:
+#         temp_object = Expression(expression)
+#         if temp_object in knowledge_dict:
+#             return True
+#     return False
+
+
 def interpreter(expression):
 
     # Let's check to see if we have an AND operator that was part of an AND
@@ -145,40 +180,50 @@ def interpreter(expression):
     expression_object = Expression(expression)
 
     if expression_object.operator_recognizer() == "Pure":
-        knowledge_dict[expression] = True
+        knowledge_dict[expression_object] = True
 
     elif expression_object.is_pure_proposition():
         if flag:
-            knowledge_dict[expression] = expression_object.AND_resolver(
+            knowledge_dict[expression_object] = expression_object.AND_resolver(
                 knowledge_dict)
         else:
-            knowledge_dict[expression] = expression_object.resolver(knowledge_dict)
+            knowledge_dict[expression_object] = expression_object.resolver(knowledge_dict)
 
     else:
         parsed_expression = expression_object.expression_parser()
 
         if flag:
-            knowledge_dict[expression] = expression_object.AND_resolver(
+            knowledge_dict[expression_object] = expression_object.AND_resolver(
                 knowledge_dict)
         else:
-            knowledge_dict[expression] = expression_object.resolver(knowledge_dict)
+            knowledge_dict[expression_object] = expression_object.resolver(knowledge_dict)
 
         for i in parsed_expression:
-            temp_expression_object = Expression(i)
-            expression_type = temp_expression_object.operator_recognizer()
+            # temp_expression_object = Expression(i)
+            expression_type = i.operator_recognizer()
 
             # Check to see if an AND proposition was par of an OR proposition
-            if temp_expression_object.and_in_or_checker(expression_object):
-                parsed_index = parsed_expression.index(i)
-                parsed_expression[parsed_index] = temp_expression_object.and_temp_transform()
+            if i.and_in_or_checker(expression_object):
+                i.and_temp_transform()
 
             if expression_type != "Pure" and expression_type != "Broken":
-                interpreter(i)
+                interpreter(i.expression)
 
 
-interpreter("(I go to school) OR ((I Think))")
+interpreter("(I Think) AND ((I Guess) OR (I play))")
 
-interpreter("(I Think)")
+interpreter("(I play)")
+
+interpreter("(I go to school) OR ((I Think) AND (I play))")
+
+interpreter("(I Think) AND ((I Guess) OR (I play))")
+
+interpreter("(I play)")
+
+interpreter("(I go to school) OR ((I Think) AND (I play))")
+
+
+print(knowledge_dict)
 
 for i,j in enumerate(knowledge_dict):
     print(i, "---->", j, "--->", knowledge_dict[j])
