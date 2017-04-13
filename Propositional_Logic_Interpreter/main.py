@@ -138,13 +138,45 @@ class Expression:
     def resolver(self, knowledge_dict):
         if self.operator_recognizer() == "AND":
             parsed_expression = self.expression_parser()
+
+            # Here we want to check if AND proposition's expressions have been
+            # updated with any value. If they are not we just assume the
+            # expression as a whole and its parts are all True.
+
+            expression_in_dict = False
+
             for expression in parsed_expression:
-                if "NOT" not in expression.expression:
-                    knowledge_dict[expression] = True
-                else:
-                    expression.negative_reverser()
-                    knowledge_dict[expression] = False
-            return True
+                if expression in knowledge_dict:
+                    expression_in_dict = True
+                    break
+
+            if expression_in_dict is False:
+                for expression in parsed_expression:
+                    if "NOT" not in expression.expression:
+                        knowledge_dict[expression] = True
+                    else:
+                        expression.negative_reverser()
+                        knowledge_dict[expression] = False
+                return True
+
+            # Else means that at some point the expression's parts have been updated
+            else:
+                for expression in parsed_expression:
+                    if expression not in knowledge_dict:
+                        knowledge_dict[expression] = None
+
+                # Let's check if all the expression are True
+                true_count = 0
+                for expression in parsed_expression:
+                    if knowledge_dict[expression] is None:
+                        return None
+                    if knowledge_dict[expression] is False:
+                        return False
+                    if knowledge_dict[expression] is True:
+                        true_count += 1
+
+                if true_count == len(parsed_expression):
+                    return True
 
         elif self.operator_recognizer() == "OR":
             parsed_expression = self.expression_parser()
@@ -202,8 +234,6 @@ class Expression:
     def and_temp_transformer(self):
         self.expression = self.expression + "@"
 
-    def
-
     def negative_reverser(self):
         expression = self.expression
         expression = expression[0] + expression[5:]
@@ -252,18 +282,3 @@ def interpreter(expression):
 
             if expression_type != "Pure" and expression_type != "Broken":
                 interpreter(i.expression)
-
-#
-# interpreter("(I sing)")
-#
-# interpreter("(I imagine)")
-#
-# interpreter("((I play) AND (I sing)) OR (I imagine)")
-
-interpreter("(NOT I die)")
-
-interpreter("IF (I die) THEN (I forget)")
-
-
-for i, j in enumerate(knowledge_dict):
-    print(i, "---->", j, "--->", knowledge_dict[j])
