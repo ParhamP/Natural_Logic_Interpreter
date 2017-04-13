@@ -8,8 +8,8 @@ class Expression:
     def __init__(self, expression):
         self.expression = expression
         self.keywords = ["OR", "AND", "IF", "THEN", "NOT"]
-        self.and_regex = r"(\(.*\)) AND (\(.*\))( AND \(.*\))*$"
-        self.or_regex = r"(\(.*\)) OR (\(.*\))( OR \(.*\))*$"
+        self.and_regex = r"(\(+.*?\)+) AND (\(+.*\)+)( AND \(+.*\)+)*$"
+        self.or_regex = r"(\(+.*?\)+) OR (\(+.*\)+)( OR \(+.*\)+)*$"
         self.conditional_regex = r"IF (\(.*\)) THEN (\(.*\))$"
 
     def get(self):
@@ -33,18 +33,18 @@ class Expression:
     def operator_recognizer(self):
 
         if re.match(self.or_regex, self.expression):
-            p = re.compile(self.or_regex)
-            m = re.match(p, self.expression)
-            for i in m.groups()[:-1]:
-                if "))" in i and "((" not in i or "((" in i and "))" not in i:
-                    return "AND"
+            # p = re.compile(self.or_regex)
+            # m = re.match(p, self.expression)
+            # for i in m.groups()[:-1]:
+            #     if "))" in i and "((" not in i or "((" in i and "))" not in i:
+            #         return "AND"
             return "OR"
         elif re.match(self.and_regex, self.expression):
-            p = re.compile(self.and_regex)
-            m = re.match(p, self.expression)
-            for i in m.groups()[:-1]:
-                if "))" in i and "((" not in i or "((" in i and "))" not in i:
-                    return "OR"
+            # p = re.compile(self.and_regex)
+            # m = re.match(p, self.expression)
+            # for i in m.groups()[:-1]:
+            #     if "))" in i and "((" not in i or "((" in i and "))" not in i:
+            #         return "OR"
             return "AND"
         elif re.match(self.conditional_regex, self.expression):
             return "Conditional"
@@ -61,7 +61,11 @@ class Expression:
 
     def expression_parser(self):
         if self.operator_recognizer() == "AND":
-            parsed_expression = self.expression.split(" AND ")
+            parsed_expression = []
+            match = re.match(self.and_regex, self.expression)
+            groups = match.groups()[:-1]
+            for expression in groups:
+                parsed_expression.append(expression)
 
             for i in parsed_expression:
                 if "))" in i and "((" in i:
@@ -85,7 +89,11 @@ class Expression:
             return parsed_expression_list
 
         elif self.operator_recognizer() == "OR":
-            parsed_expression = self.expression.split(" OR ")
+            parsed_expression = []
+            match = re.match(self.or_regex, self.expression)
+            groups = match.groups()[:-1]
+            for expression in groups:
+                parsed_expression.append(expression)
             for i in parsed_expression:
                 if "))" in i and "((" in i:
                     list_index = parsed_expression.index(i)
@@ -217,9 +225,14 @@ def interpreter(expression):
                 interpreter(i.expression)
 
 
-interpreter("(I Think) OR ((I Guess) AND (I play))")
+
+interpreter("(I play) OR ((I laugh) OR (I live))")
 
 
+
+interpreter("(I play)")
+
+interpreter("(I play) OR ((I laugh) OR (I live))")
 
 
 for i,j in enumerate(knowledge_dict):
