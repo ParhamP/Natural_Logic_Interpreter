@@ -10,7 +10,7 @@ class Expression:
         self.keywords = ["OR", "AND", "IF", "THEN"]
         self.and_regex = r"(\(+.*?\)+) AND (\(+.*\)+)( AND \(+.*\)+)*$"
         self.or_regex = r"(\(+.*?\)+) OR (\(+.*\)+)( OR \(+.*\)+)*$"
-        self.conditional_regex = r"IF (\(.*\)) THEN (\(.*\))$"
+        self.conditional_regex = r"IF \((\(.*\))\) THEN (\(.*\))$"
 
     def get(self):
         return self.expression
@@ -207,7 +207,7 @@ class Expression:
             else:
                 return None
 
-    def and_in_or_resolver(self, knowledge_dict):
+    def special_resolver(self, knowledge_dict):
         parsed_expression = self.expression_parser()
         for expression in parsed_expression:
             if expression not in knowledge_dict:
@@ -220,13 +220,15 @@ class Expression:
             else:
                 return True
 
-    def and_in_or_checker(self, or_expression_object):
-        """
-        :param or_expression_object: 
-        :return: 
-        """
+    def and_in_or_checker(self, or_expression):
 
-        if self.operator_recognizer() == "AND" and or_expression_object.operator_recognizer() == "OR":
+        if self.operator_recognizer() == "AND" and or_expression.operator_recognizer() == "OR":
+            return True
+        else:
+            return None
+
+    def conditional_and_checker(self):
+        if self.operator_recognizer() == "AND":
             return True
         else:
             return None
@@ -258,7 +260,7 @@ def interpreter(expression):
             knowledge_dict[expression_object] = False
     elif expression_object.is_pure_proposition():
         if flag:
-            knowledge_dict[expression_object] = expression_object.and_in_or_resolver(
+            knowledge_dict[expression_object] = expression_object.special_resolver(
                 knowledge_dict)
         else:
             knowledge_dict[expression_object] = expression_object.resolver(knowledge_dict)
@@ -267,18 +269,30 @@ def interpreter(expression):
         parsed_expression = expression_object.expression_parser()
 
         if flag:
-            knowledge_dict[expression_object] = expression_object.and_in_or_resolver(
+            knowledge_dict[expression_object] = expression_object.special_resolver(
                 knowledge_dict)
         else:
             knowledge_dict[expression_object] = expression_object.resolver(knowledge_dict)
 
-        for i in parsed_expression:
-            # temp_expression_object = Expression(i)
-            expression_type = i.operator_recognizer()
+        # Check to see if it is conditional so we can mark its IF proposition
+        if expression_object.operator_recognizer() == "Conditional":
+            for i in parsed_expression.values():
 
-            # Check to see if an AND proposition was par of an OR proposition
-            if i.and_in_or_checker(expression_object):
-                i.and_temp_transformer()
+                expression_type = i.operator_recognizer()
 
-            if expression_type != "Pure" and expression_type != "Broken":
-                interpreter(i.expression)
+                if i.conditional_and_checker() is True:
+                    parsed_expression["IF"].and_temp_transformer()
+
+                if expression_type != "Pure" and expression_type != "Broken":
+                    interpreter(i.expression)
+
+        else:
+            for i in parsed_expression:
+                expression_type = i.operator_recognizer()
+
+                # Check to see if any AND  was part of an OR proposition
+                if i.and_in_or_checker(expression_object) is True:
+                    i.and_temp_transformer()
+
+                if expression_type != "Pure" and expression_type != "Broken":
+                    interpreter(i.expression)
