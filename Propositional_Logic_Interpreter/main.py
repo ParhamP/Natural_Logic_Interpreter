@@ -266,6 +266,42 @@ class Resolver(Expression):
     def __init__(self, expression):
         Expression.__init__(self, expression)
 
+    def and_resolver(self, knowledge_dict):
+        parsed_expression = self.expression_parser()
+        for expression in parsed_expression:
+            if expression not in knowledge_dict:
+                knowledge_dict[expression] = None
+
+        true_count = 0
+        for expression in parsed_expression:
+            if knowledge_dict[expression] is None:
+                return None
+            if knowledge_dict[expression] is False:
+                return False
+            if knowledge_dict[expression] is True:
+                true_count += 1
+        if true_count == len(parsed_expression):
+            return True
+
+    def or_resolver(self, knowledge_dict):
+        parsed_expression = self.expression_parser()
+        for expression in parsed_expression:
+            if expression not in knowledge_dict:
+                print("UUU")
+                return None
+
+        # count to check if all elements are false
+        count = 0
+        for expression in parsed_expression:
+            if knowledge_dict[expression] is True:
+                return True
+            if knowledge_dict[expression] is False:
+                count += 1
+        if count == len(parsed_expression):
+            return False
+        else:
+            return None
+
 # ------------------------------------------------------------------------------
 
 
@@ -327,18 +363,24 @@ def interpreter(expression):
 
 
 def validator(expression):
-    expression_object = Definer(expression)
+    expression_object = Resolver(expression)
+    expression_object_type = expression_object.operator_recognizer()
 
-    if expression_object.operator_recognizer() == "Pure":
+    if expression_object_type == "Pure":
         if expression_object not in knowledge_dict:
             return None
         else:
             return knowledge_dict[expression_object]
 
     elif expression_object.is_pure_proposition() is True:
-        pass
+        if expression_object_type == "AND":
+            return expression_object.and_resolver(knowledge_dict)
+        elif expression_object_type == "OR":
+            return expression_object.or_resolver(knowledge_dict)
+        elif expression_object_type == "Conditional":
+            return
 
-
+# ------------------------------------------------------------------------------
 for i in range(2):
 
     # interpreter("IF (I go) AND (I swim) THEN (I cry)")
@@ -362,22 +404,21 @@ for i in range(2):
     #
     # interpreter("IF (I come) THEN (NOT I die)")
 
-    interpreter("(I dance)")
-    interpreter("(I break)")
-
-    interpreter("(I work) AND (I shit)")
-
-    interpreter("(I play) AND ((I work) AND (I shit))")
-
-    interpreter("IF (I work) AND (I shit) THEN (I die)")
+    # interpreter("(I dance)")
+    #
+    # interpreter("(I work)")
 
     # interpreter("(I come) OR ((I dance) AND (I break))")
 
+    interpreter("(NOT I dance)")
+
+    interpreter("(NOT I work)")
 
 for i, j in enumerate(knowledge_dict):
     print(i, "---->", j, "--->", knowledge_dict[j])
 
 
-# a = validator("(I dance) AND (I break)") #-----> True
-#
-# print("%%%%%", a)
+a = validator("(I dance) OR (I work)")
+
+
+print("%%%%%", a)
