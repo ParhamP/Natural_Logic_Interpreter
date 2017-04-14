@@ -84,7 +84,7 @@ class Expression:
                     parsed_expression[list_index] = i
             parsed_expression_list = []
             for i in parsed_expression:
-                new_expression_object = Expression(i)
+                new_expression_object = Definer(i)
                 parsed_expression_list.append(new_expression_object)
             return parsed_expression_list
 
@@ -109,14 +109,14 @@ class Expression:
                     parsed_expression[list_index] = i
             parsed_expression_list = []
             for i in parsed_expression:
-                new_expression_object = Expression(i)
+                new_expression_object = Definer(i)
                 parsed_expression_list.append(new_expression_object)
             return parsed_expression_list
 
         elif self.operator_recognizer() == "Conditional":
             condt_matched = re.match(self.conditional_regex, self.expression)
-            condt_object1 = Expression(condt_matched.group(1))
-            condt_object2 = Expression(condt_matched.group(2))
+            condt_object1 = Definer(condt_matched.group(1))
+            condt_object2 = Definer(condt_matched.group(2))
             parsed_expression = {"IF": condt_object1,
                                  "THEN": condt_object2}
             return parsed_expression
@@ -140,6 +140,14 @@ class Expression:
         expression = expression[0] + expression[5:]
         self.expression = expression
 
+# ------------------------------------------------------------------------------
+
+
+class Definer(Expression):
+
+    def __init__(self, expression):
+        Expression.__init__(self, expression)
+
     def definer(self, knowledge_dict):
         if self.operator_recognizer() == "AND":
             parsed_expression = self.expression_parser()
@@ -150,25 +158,6 @@ class Expression:
                     expression.negative_reverser()
                     knowledge_dict[expression] = False
             return True
-            #
-            # # Else means that at some point the expression's parts have been updated
-            # else:
-            #     for expression in parsed_expression:
-            #         if expression not in knowledge_dict:
-            #             knowledge_dict[expression] = None
-            #
-            #     # Let's check if all the expression are True
-            #     true_count = 0
-            #     for expression in parsed_expression:
-            #         if knowledge_dict[expression] is None:
-            #             return None
-            #         if knowledge_dict[expression] is False:
-            #             return False
-            #         if knowledge_dict[expression] is True:
-            #             true_count += 1
-            #
-            #     if true_count == len(parsed_expression):
-            #         return True
 
         elif self.operator_recognizer() == "OR":
             parsed_expression = self.expression_parser()
@@ -243,13 +232,6 @@ class Expression:
         for expression in parsed_expression:
             if expression not in knowledge_dict:
                 knowledge_dict[expression] = None
-        # for expression in parsed_expression:
-        #     if knowledge_dict[expression] is None:
-        #         return None
-        #     if knowledge_dict[expression] is False:
-        #         return False
-        #     else:
-        #         return True
 
         true_count = 0
         for expression in parsed_expression:
@@ -261,7 +243,6 @@ class Expression:
                 true_count += 1
         if true_count == len(parsed_expression):
             return True
-
 
     def and_in_or_checker(self, or_expression):
 
@@ -278,6 +259,14 @@ class Expression:
 
     def and_temp_transformer(self):
         self.expression = self.expression + "@"
+# ------------------------------------------------------------------------------
+
+
+class Resolver(Expression):
+    def __init__(self, expression):
+        Expression.__init__(self, expression)
+
+# ------------------------------------------------------------------------------
 
 
 def interpreter(expression):
@@ -288,10 +277,10 @@ def interpreter(expression):
         # Flag has become True and we can normalize the expression again
         expression = expression[0:-1]
 
-    expression_object = Expression(expression)
+    expression_object = Definer(expression)
 
     if expression_object.operator_recognizer() == "Pure":
-        if "NOT" not in expression_object.expression:
+        if "NOT" not in expression_object.get():
             knowledge_dict[expression_object] = True
         else:
             expression_object.negative_reverser()
@@ -314,30 +303,31 @@ def interpreter(expression):
 
         # Check to see if it is conditional so we can mark its IF proposition
         if expression_object.operator_recognizer() == "Conditional":
-            for i in parsed_expression.values():
+            for expression in parsed_expression.values():
 
-                expression_type = i.operator_recognizer()
+                expression_type = expression.operator_recognizer()
 
-                if i.conditional_and_checker() is True:
+                if expression.conditional_and_checker() is True:
                     parsed_expression["IF"].and_temp_transformer()
 
                 if expression_type != "Pure" and expression_type != "Broken":
-                    interpreter(i.expression)
+                    interpreter(expression.get())
 
         else:
-            for i in parsed_expression:
-                expression_type = i.operator_recognizer()
+            for expression in parsed_expression:
+                expression_type = expression.operator_recognizer()
 
                 # Check to see if any AND  was part of an OR proposition
-                if i.and_in_or_checker(expression_object) is True:
-                    i.and_temp_transformer()
+                if expression.and_in_or_checker(expression_object) is True:
+                    expression.and_temp_transformer()
 
                 if expression_type != "Pure" and expression_type != "Broken":
-                    interpreter(i.expression)
+                    interpreter(expression.get())
+# ------------------------------------------------------------------------------
 
 
 def validator(expression):
-    expression_object = Expression(expression)
+    expression_object = Definer(expression)
 
     if expression_object.operator_recognizer() == "Pure":
         if expression_object not in knowledge_dict:
@@ -347,3 +337,47 @@ def validator(expression):
 
     elif expression_object.is_pure_proposition() is True:
         pass
+
+
+for i in range(2):
+
+    # interpreter("IF (I go) AND (I swim) THEN (I cry)")
+    # interpreter("(I go) AND (I cry) AND (I fuck)")
+    # interpreter("(I swim)")
+
+    # interpreter("(I go) AND (I come)")
+    # interpreter("(I fuck) OR (I dance)")
+    #
+    # interpreter("(I play)")
+    #
+    # interpreter("(I do) AND (I come)")
+    # interpreter("(I enjoy) OR (I come)")
+    # interpreter("(I settle) AND ((I enjoy) OR (I come))")
+
+    # interpreter("(NOT I enjoy)")
+    #
+    # interpreter("IF (I enjoy) THEN (I dance)")
+
+    # interpreter("(NOT I come)")
+    #
+    # interpreter("IF (I come) THEN (NOT I die)")
+
+    interpreter("(I dance)")
+    interpreter("(I break)")
+
+    interpreter("(I work) AND (I shit)")
+
+    interpreter("(I play) AND ((I work) AND (I shit))")
+
+    interpreter("IF (I work) AND (I shit) THEN (I die)")
+
+    # interpreter("(I come) OR ((I dance) AND (I break))")
+
+
+for i, j in enumerate(knowledge_dict):
+    print(i, "---->", j, "--->", knowledge_dict[j])
+
+
+# a = validator("(I dance) AND (I break)") #-----> True
+#
+# print("%%%%%", a)
