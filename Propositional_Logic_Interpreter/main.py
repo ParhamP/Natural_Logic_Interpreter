@@ -215,7 +215,7 @@ class Definer(Expression):
                 if knowledge_dict[self.parsed_expression["IF"]] is True:
                     if "NOT" in self.parsed_expression["THEN"].expression:
                         self.parsed_expression["THEN"].negative_reverser()
-                        knowledge_dict[parsed_expression["THEN"]] = False
+                        knowledge_dict[self.parsed_expression["THEN"]] = False
                     else:
                         knowledge_dict[self.parsed_expression["THEN"]] = True
                     return True
@@ -314,9 +314,69 @@ class Resolver(Expression):
             return None
 
     def conditional_resolver(self, knowledge_dict):
-        parsed_
+        if_statement = self.parsed_expression["IF"]
+        then_statement = self.parsed_expression["THEN"]
 
+        if then_statement not in knowledge_dict:
+            knowledge_dict[then_statement] = None
 
+        if "NOT" in if_statement.get() and "NOT" not in then_statement.get():
+            if_statement.negative_reverser()
+            if if_statement not in knowledge_dict:
+                return None
+            if knowledge_dict[if_statement] is False and knowledge_dict[
+                    then_statement] is False:
+                return False
+            elif knowledge_dict[if_statement] is True:
+                return True
+            elif knowledge_dict[if_statement] is False and knowledge_dict[
+                    then_statement] is True:
+                return True
+            else:
+                return None
+
+        elif "NOT" in if_statement.get() and "NOT" in then_statement.get():
+            if_statement.negative_reverser()
+            then_statement.negative_reverser()
+            if if_statement not in knowledge_dict:
+                return None
+            if knowledge_dict[if_statement] is False and knowledge_dict[
+                    then_statement] is True:
+                return False
+            elif knowledge_dict[if_statement] is True:
+                return True
+            elif knowledge_dict[if_statement] is False and knowledge_dict[
+                    then_statement] is False:
+                return True
+            else:
+                return None
+
+        elif "NOT" not in if_statement.get() and "NOT" in then_statement.get():
+            then_statement.negative_reverser()
+            if if_statement not in knowledge_dict:
+                return None
+            if knowledge_dict[if_statement] is True and knowledge_dict[
+                    then_statement] is True:
+                return False
+            elif knowledge_dict[if_statement] is False:
+                return True
+            elif knowledge_dict[if_statement] is True and knowledge_dict[
+                    then_statement] is False:
+                return True
+            else:
+                return None
+
+        else:
+            if knowledge_dict[if_statement] is True and knowledge_dict[
+                    then_statement] is False:
+                return False
+            elif knowledge_dict[if_statement] is False:
+                return True
+            elif knowledge_dict[if_statement] is True and knowledge_dict[
+                    then_statement] is True:
+                return True
+            else:
+                return None
 # ------------------------------------------------------------------------------
 
 
@@ -342,7 +402,8 @@ def interpreter(expression):
             knowledge_dict[expression_object] = expression_object.special_definer(
                 knowledge_dict)
         else:
-            knowledge_dict[expression_object] = expression_object.definer(knowledge_dict)
+            knowledge_dict[expression_object] = expression_object.definer(
+                knowledge_dict)
 
     else:
         parsed_expression = expression_object.expression_parser()
@@ -351,7 +412,8 @@ def interpreter(expression):
             knowledge_dict[expression_object] = expression_object.special_definer(
                 knowledge_dict)
         else:
-            knowledge_dict[expression_object] = expression_object.definer(knowledge_dict)
+            knowledge_dict[expression_object] = expression_object.definer(
+                knowledge_dict)
 
         # Check to see if it is conditional so we can mark its IF proposition
         if expression_object.operator_recognizer() == "Conditional":
@@ -397,46 +459,3 @@ def validator(expression):
             return expression_object.conditional_resolver(knowledge_dict)
 
 # ------------------------------------------------------------------------------
-for i in range(2):
-
-    # interpreter("IF (I go) AND (I swim) THEN (I cry)")
-    # interpreter("(I go) AND (I cry) AND (I fuck)")
-    # interpreter("(I swim)")
-
-    # interpreter("(I go) AND (I come)")
-    # interpreter("(I fuck) OR (I dance)")
-    #
-    # interpreter("(I play)")
-    #
-    # interpreter("(I do) AND (I come)")
-    # interpreter("(I enjoy) OR (I come)")
-    # interpreter("(I settle) AND ((I enjoy) OR (I come))")
-
-    # interpreter("(NOT I enjoy)")
-    #
-    # interpreter("IF (I enjoy) THEN (I dance)")
-
-    # interpreter("(NOT I come)")
-    #
-    # interpreter("IF (I come) THEN (NOT I die)")
-
-    # interpreter("(I dance)")
-    #
-    # interpreter("(I work)")
-
-    # interpreter("(I come) OR ((I dance) AND (I break))")
-
-    interpreter("(NOT I dance)")
-
-    interpreter("(I work)")
-
-    interpreter("IF (I dance) AND (I work) THEN (I play)")
-
-for i, j in enumerate(knowledge_dict):
-    print(i, "---->", j, "--->", knowledge_dict[j])
-
-
-a = validator("(NOT I dance) OR (NOT I work)")
-
-
-print("%%%%%", a)
