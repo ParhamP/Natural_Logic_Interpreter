@@ -135,6 +135,11 @@ class Expression:
                     return False
             return True
 
+    def negative_reverser(self):
+        expression = self.expression
+        expression = expression[0] + expression[5:]
+        self.expression = expression
+
     def definer(self, knowledge_dict):
         if self.operator_recognizer() == "AND":
             parsed_expression = self.expression_parser()
@@ -238,13 +243,25 @@ class Expression:
         for expression in parsed_expression:
             if expression not in knowledge_dict:
                 knowledge_dict[expression] = None
+        # for expression in parsed_expression:
+        #     if knowledge_dict[expression] is None:
+        #         return None
+        #     if knowledge_dict[expression] is False:
+        #         return False
+        #     else:
+        #         return True
+
+        true_count = 0
         for expression in parsed_expression:
             if knowledge_dict[expression] is None:
                 return None
             if knowledge_dict[expression] is False:
                 return False
-            else:
-                return True
+            if knowledge_dict[expression] is True:
+                true_count += 1
+        if true_count == len(parsed_expression):
+            return True
+
 
     def and_in_or_checker(self, or_expression):
 
@@ -261,11 +278,6 @@ class Expression:
 
     def and_temp_transformer(self):
         self.expression = self.expression + "@"
-
-    def negative_reverser(self):
-        expression = self.expression
-        expression = expression[0] + expression[5:]
-        self.expression = expression
 
 
 def interpreter(expression):
@@ -324,5 +336,14 @@ def interpreter(expression):
                     interpreter(i.expression)
 
 
-def resolver():
-    pass
+def validator(expression):
+    expression_object = Expression(expression)
+
+    if expression_object.operator_recognizer() == "Pure":
+        if expression_object not in knowledge_dict:
+            return None
+        else:
+            return knowledge_dict[expression_object]
+
+    elif expression_object.is_pure_proposition() is True:
+        pass
