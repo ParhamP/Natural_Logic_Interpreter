@@ -2,6 +2,9 @@ import re
 
 
 class Expression:
+    """
+    Expression class takes a logical expression in form of string and creates
+    """
 
     def __init__(self, expression):
         self.expression = expression
@@ -224,27 +227,30 @@ class Definer(Expression):
                 knowledge_dict[self.expression_parser()[expression]] = None
 
         if "NOT" in self.expression_parser()["IF"].expression:
-            self.expression_parser()["IF"].negative_inverter()
+            if_proposition = self.expression_parser()["IF"]
+            if_proposition.negative_inverter()
 
-            if self.expression_parser()["IF"] not in knowledge_dict:
+            if if_proposition not in knowledge_dict:
                 return None
 
-            if knowledge_dict[self.expression_parser()["IF"]] is False:
+            if knowledge_dict[if_proposition] is False:
                 if "NOT" in self.expression_parser()["THEN"].expression:
-                    self.expression_parser()["THEN"].negative_inverter()
-                    knowledge_dict[self.expression_parser()["THEN"]] = False
+                    then_proposition = self.expression_parser()["THEN"]
+                    then_proposition.negative_inverter()
+                    knowledge_dict[then_proposition] = False
                 else:
                     knowledge_dict[self.expression_parser()["THEN"]] = True
                 return True
-            elif knowledge_dict[self.expression_parser()["IF"]] is True:
+            elif knowledge_dict[if_proposition] is True:
                 return True
             else:
                 return None
         else:
             if knowledge_dict[self.expression_parser()["IF"]] is True:
                 if "NOT" in self.expression_parser()["THEN"].expression:
-                    self.expression_parser()["THEN"].negative_inverter()
-                    knowledge_dict[self.expression_parser()["THEN"]] = False
+                    then_proposition = self.expression_parser()["THEN"]
+                    then_proposition.negative_inverter()
+                    knowledge_dict[then_proposition] = False
                 else:
                     knowledge_dict[self.expression_parser()["THEN"]] = True
                 return True
@@ -496,10 +502,22 @@ def validator(expression):
     expression_object_type = expression_object.recognizer()
     parsed_expression = expression_object.expression_parser()
     if expression_object_type == "Pure":
-        if expression_object not in knowledge_dict:
-            return None
+        if "NOT" in expression_object.get():
+            temp_inverted = expression_object.temp_negative_inverter()
+            if temp_inverted not in knowledge_dict:
+                proof_dict[expression_object] = None
+                return None
+            elif knowledge_dict[temp_inverted] is True:
+                proof_dict[expression_object] = False
+                return False
+            else:
+                proof_dict[expression_object] = True
+                return True
         else:
-            return knowledge_dict[expression_object]
+            if expression_object not in knowledge_dict:
+                return None
+            else:
+                return knowledge_dict[expression_object]
 
     elif expression_object.is_pure_proposition() is True:
         proof_dict[expression_object] = expression_object.general_resolver()
@@ -524,4 +542,37 @@ def validator(expression):
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
     knowledge_dict = dict()
-    proof_dict = knowledge_dict.copy()
+    user_input = ""
+
+    print("Please keep entering the logical arguments you would like to" +
+          " define.\nTo see the results and further validate new arguments" +
+          " based on previous arguments enter -1.")
+
+    input_list = list()
+
+    while user_input != "-1":
+        user_input = input("\nNew argument:\t")
+        if user_input != "-1":
+            input_list.append(user_input)
+
+    for count in range(2):
+        for expression in input_list:
+            interpreter(expression)
+
+    print(40 * "-" + "\nExpressions and arguments you defined: ")
+
+    for expression in knowledge_dict:
+        print(expression.get(), "--->", knowledge_dict[expression])
+
+    print(40 * "-" + "\nEnter the new argument you would like to validate: " +
+          "\nEnter 'exit' to quit.")
+
+    while user_input != "exit":
+        proof_dict = knowledge_dict.copy()
+        user_input = input("\nValidate:\t")
+        if user_input != "exit":
+            for i in range(2):
+                validator(user_input)
+            for expression in proof_dict:
+                if expression.get() == user_input:
+                    print(user_input, "----->", proof_dict[expression])
