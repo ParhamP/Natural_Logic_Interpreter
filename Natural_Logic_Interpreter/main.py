@@ -59,6 +59,14 @@ class Expression:
             else:
                 return "Broken"
 
+    def valid_parentheses_checker(self):
+        if "(" not in self.expression and ")" not in self.expression:
+            return False
+        if "(" not in self.expression or ")" not in self.expression:
+            return False
+        else:
+            return True
+
     def expression_parser(self):
         if self.recognizer() == "AND":
             parsed_expression = []
@@ -515,9 +523,12 @@ def validator(expression):
                 return True
         else:
             if expression_object not in knowledge_dict:
+                proof_dict[expression_object] = None
                 return None
             else:
-                return knowledge_dict[expression_object]
+                proof_dict[expression_object] = knowledge_dict[
+                    expression_object]
+                return proof_dict[expression_object]
 
     elif expression_object.is_pure_proposition() is True:
         proof_dict[expression_object] = expression_object.general_resolver()
@@ -546,13 +557,21 @@ if __name__ == '__main__':
 
     print("Please keep entering the logical arguments you would like to" +
           " define.\nTo see the results and further validate new arguments" +
-          " based on previous arguments enter -1.")
+          " based on your arguments enter -1.")
 
     input_list = list()
 
     while user_input != "-1":
         user_input = input("\nNew argument:\t")
         if user_input != "-1":
+            expression_object = Expression(user_input)
+            if expression_object.recognizer() == "Broken":
+                print("Incorrect Syntax. Please try again: ")
+                continue
+            elif expression_object.recognizer() == "Pure":
+                if expression_object.valid_parentheses_checker() is False:
+                    print("Parentheses do not exist or are not in a valid form.")
+                    continue
             input_list.append(user_input)
 
     for count in range(2):
@@ -565,14 +584,19 @@ if __name__ == '__main__':
         print(expression.get(), "--->", knowledge_dict[expression])
 
     print(40 * "-" + "\nEnter the new argument you would like to validate: " +
-          "\nEnter 'exit' to quit.")
+          "\nEnter 'view' at any time to see the full list of arguments and" +
+          " their results\nEnter 'exit' to quit.")
 
+    proof_dict = knowledge_dict.copy()
     while user_input != "exit":
-        proof_dict = knowledge_dict.copy()
         user_input = input("\nValidate:\t")
         if user_input != "exit":
-            for i in range(2):
-                validator(user_input)
-            for expression in proof_dict:
-                if expression.get() == user_input:
-                    print(user_input, "----->", proof_dict[expression])
+            if user_input == "view":
+                for expression in proof_dict:
+                    print(expression.get(), "--->", proof_dict[expression])
+            else:
+                for i in range(2):
+                    validator(user_input)
+                for expression in proof_dict:
+                    if expression.get() == user_input:
+                        print(user_input, "----->", proof_dict[expression])
