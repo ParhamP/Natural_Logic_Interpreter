@@ -40,6 +40,7 @@ to automate this task using computers.
 
 **Then we can validate any proposition we want based on them:**
 
+
 (I'm sick) -----> `False`
 
 IF (I exercise) THEN (I'm healthy) -----> `True`
@@ -49,6 +50,58 @@ IF (I exercise) THEN (I'm healthy) -----> `True`
 (It rains today) OR (I'm healthy) -----> `True`
 
 (I drink a coffee) AND ((I'm happy) OR (I'm fit)) -----> `None`
+
+**We can also see all the conclusions that were able to be drawn by the program:**
+
+~~~~
+(It rains today) ---> None
+
+(I go to gym) OR (I drink a coffee) ---> None
+
+(I'm happy) ---> None
+
+(I drink a coffee) AND ((I'm happy) OR (I'm fit)) ---> None
+
+(It rains today) OR (I'm healthy) ---> True
+
+(I study) AND ((I go to gym) OR (I drink a coffee)) ---> True
+
+IF (I'm healthy) THEN (NOT I'm sick) ---> True
+
+IF (I'm healthy) THEN (I'm happy) OR (I'm fit) ---> True
+
+(I'm fit) ---> None
+
+(I study) OR (I'm sick) ---> True
+
+(I go to school) AND ((I study) AND (I exercise)) ---> True
+
+(I go to school) ---> True
+
+(it rains today) OR ((I exercise) AND (I study)) ---> True
+
+(I exercise) AND (I study) ---> True
+
+(I'm healthy) ---> True
+
+IF (I exercise) THEN (I'm healthy) ---> True
+
+(I go to gym) ---> None
+
+(I'm happy) OR (I'm fit) ---> None
+
+(I study) AND (I exercise) ---> True
+
+(I drink a coffee) ---> None
+
+(I exercise) ---> True
+
+(it rains today) ---> False
+
+(I'm sick) ---> False
+
+(I study) ---> True
+~~~~
 
 ## Dependencies
 
