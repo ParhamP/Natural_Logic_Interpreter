@@ -1,6 +1,8 @@
 # Natural_Logic_Interpreter
 
-![alt text](hi.png "Logo Title Text 1")
+<p align="center">
+<img src="hi.png">
+</p>
 
 ## Description
 NLI automatically interprets and validates nested natural logic arguments based
