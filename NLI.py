@@ -6,7 +6,7 @@ class Expression:
     Expression class takes a logical expression in form of string and creates
     an object with useful methods to manipulate the expression or to get useful
     information from it.
-    
+
     Attributes
     ----------
     expression: str
@@ -19,7 +19,7 @@ class Expression:
             Regular expression used to identify disjunctive arguments
     conditional_regex:  str
             Regular expression used to identify conditional arguments
-    
+
     Methods
     -------
     get()
@@ -63,7 +63,7 @@ class Expression:
     def set(self, new_expression):
         """
         Sets the self.expression to a new string
-        
+
         :param new_expression
         :type new_expression: str
         :return: -
@@ -127,7 +127,7 @@ class Expression:
         """
         Parses the expression of an Expression object to its main parts and
         creates new objects with the sub-parts and places them in a list.
-        
+
         :return: parsed_expression_list
         :rtype: list
         """
@@ -196,7 +196,7 @@ class Expression:
         """
         Checks whether a proposition is pure, meaning it is just stating the 
         truth of an expression without any keywords.
-        
+
         :return: True | False
          :rtype: bool
         """
@@ -216,7 +216,7 @@ class Expression:
     def negative_inverter(self):
         """
         Removes NOT from the expression of an Expression object and sets it.
-        
+
         :return: -
         """
         expression = self.expression
@@ -227,7 +227,7 @@ class Expression:
         """
         Returns a string that has the NOT in the expression of an Expression
         object removed.
-        
+
         :return: temp_inverted_object
         :rtype: str
         """
@@ -285,7 +285,7 @@ class Definer(Expression):
         Defines a disjunctive expression into the knowledge dictionary and set
         the expression to True or False based on evaluation of previously
         entered expressions.
-        
+
         :return: True | False | None
         :rtype: bool
         """
@@ -396,7 +396,7 @@ class Definer(Expression):
         Used as a general definer to be used in interpreter function. For the
         sake of simplicity, definer checks the type of the expression in its
         body and uses the right definer accordingly.
-        
+
         :return: True | False | None
         :rtype: bool
         """
@@ -437,7 +437,7 @@ class Definer(Expression):
         """
         Checks whether the expression we are looking is an AND expression that
         is part of an OR expression.
-        
+
         :param main_expression: 
         :type main_expression: Expression
         :return: True | False
@@ -451,10 +451,12 @@ class Definer(Expression):
     def and_temp_transformer(self):
         """
         Sets a mark in the expression so we can recognize it's different later.
-        
+
         :return: -
         """
         self.expression = self.expression + "@"
+
+
 # ------------------------------------------------------------------------------
 
 
@@ -475,6 +477,7 @@ class Resolver(Expression):
     conditional_resolver()
     general_resolver()
     """
+
     def __init__(self, expression):
         Expression.__init__(self, expression)
 
@@ -482,7 +485,7 @@ class Resolver(Expression):
         """
         Resolves an AND expression based on other expressions stored in
         proof_dict.
-        
+
         :return: True | False | None
         :rtype: bool
         """
@@ -565,12 +568,12 @@ class Resolver(Expression):
                 proof_dict[if_statement] = None
                 return None
             if proof_dict[if_statement] is False and proof_dict[
-                    then_statement] is False:
+                then_statement] is False:
                 return False
             elif proof_dict[if_statement] is True:
                 return True
             elif proof_dict[if_statement] is False and proof_dict[
-                    then_statement] is True:
+                then_statement] is True:
                 return True
             else:
                 return None
@@ -582,12 +585,12 @@ class Resolver(Expression):
                 proof_dict[if_statement] = None
                 return None
             if proof_dict[if_statement] is False and proof_dict[
-                    then_statement] is True:
+                then_statement] is True:
                 return False
             elif proof_dict[if_statement] is True:
                 return True
             elif proof_dict[if_statement] is False and proof_dict[
-                    then_statement] is False:
+                then_statement] is False:
                 return True
             else:
                 return None
@@ -598,12 +601,12 @@ class Resolver(Expression):
                 proof_dict[if_statement] = None
                 return None
             if proof_dict[if_statement] is True and proof_dict[
-                    then_statement] is True:
+                then_statement] is True:
                 return False
             elif proof_dict[if_statement] is False:
                 return True
             elif proof_dict[if_statement] is True and proof_dict[
-                    then_statement] is False:
+                then_statement] is False:
                 return True
             else:
                 return None
@@ -613,12 +616,12 @@ class Resolver(Expression):
                 proof_dict[if_statement] = None
                 return None
             if proof_dict[if_statement] is True and proof_dict[
-                    then_statement] is False:
+                then_statement] is False:
                 return False
             elif proof_dict[if_statement] is False:
                 return True
             elif proof_dict[if_statement] is True and proof_dict[
-                    then_statement] is True:
+                then_statement] is True:
                 return True
             else:
                 return None
@@ -638,6 +641,8 @@ class Resolver(Expression):
             return self.or_resolver()
         elif self.recognizer() == "Conditional":
             return self.conditional_resolver()
+
+
 # ------------------------------------------------------------------------------
 
 
@@ -646,7 +651,7 @@ def interpreter(expression):
     interpreter function is a recursive function that uses divide and conquer
     to go through nested arguments of the input expression and defines them
     accordingly.
-    
+
     :param expression:
     :type expression: str
     :return: -
@@ -674,7 +679,8 @@ def interpreter(expression):
     # Second base case
     elif expression_object.is_pure_proposition():
         if flag:
-            knowledge_dict[expression_object] = expression_object.special_definer()
+            knowledge_dict[
+                expression_object] = expression_object.special_definer()
         else:
             knowledge_dict[expression_object] = expression_object.definer()
 
@@ -683,7 +689,8 @@ def interpreter(expression):
         parsed_expression = expression_object.expression_parser()
 
         if flag:
-            knowledge_dict[expression_object] = expression_object.special_definer()
+            knowledge_dict[
+                expression_object] = expression_object.special_definer()
         else:
             knowledge_dict[expression_object] = expression_object.definer()
 
@@ -711,6 +718,8 @@ def interpreter(expression):
                 # Recursive step
                 if expression_type != "Pure" and expression_type != "Broken":
                     interpreter(expression.get())
+
+
 # ------------------------------------------------------------------------------
 
 
@@ -776,6 +785,7 @@ def validator(expression):
                 # Recursive step
                 if expression_type != "Pure" and expression_type != "Broken":
                     validator(expression.get())
+
 
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
