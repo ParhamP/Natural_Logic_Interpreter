@@ -1,7 +1,7 @@
 # Natural_Logic_Interpreter
 
 <p align="center">
-<img src="hi.png">
+<img src="logo.png">
 </p>
 
 ## Description
