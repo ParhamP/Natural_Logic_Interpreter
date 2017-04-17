@@ -2,7 +2,6 @@
 
 <p align="center">
 <img src="logo.png">
-<caption align="bottom">caption text</caption>
 </p>
 
 ## Description
@@ -39,6 +38,14 @@ We can establish these logical arguments:
 
 `IF (I'm healthy) THEN (I'm happy) OR (I'm fit)`
 
-Now we can validate them:
+Then we can validate any proposition we want based on them:
 
-(I go to school) -----> `True`
+(I'm sick) -----> `False`
+
+IF (I exercise) THEN (I'm healthy) -----> `True`
+
+(I'm sick) -----> `False`
+
+(It rains today) OR (I'm healthy) -----> `True`
+
+(I drink a coffee) AND ((I'm happy) OR (I'm fit)) -----> `None`
