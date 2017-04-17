@@ -816,11 +816,20 @@ if __name__ == '__main__':
                     continue
             input_list.append(user_input)
 
+    failed_expression = set()
+
     for count in range(2):
         # We repeat the procedure of defining to make sure all the elements get
         # updated.
         for expression in input_list:
-            interpreter(expression)
+            try:
+                interpreter(expression)
+            except Exception:
+                failed_expression.add(expression)
+
+    for expression in failed_expression:
+        print("\nThis expression could not be submitted due to a problem: ",
+              expression)
 
     print(40 * "-" + "\nExpressions and arguments you defined: ")
 
@@ -846,7 +855,11 @@ if __name__ == '__main__':
                 for i in range(2):
                     # We repeat the procedure of defining to make sure all the
                     # elements get validated.
-                    validator(user_input)
+                    try:
+                        validator(user_input)
+                    except Exception:
+                        "There is a problem with this argument."
+                        continue
                 for expression in proof_dict:
                     if expression.get() == user_input:
                         print(user_input, "----->", proof_dict[expression])
