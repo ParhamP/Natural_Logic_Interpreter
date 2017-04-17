@@ -20,7 +20,7 @@ I came across this paragraph while studying "Discrete Mathematics and It's Appli
 to automate this task using computers.
 
 ## Examples
-We can establish these logical arguments:
+**We can establish these logical arguments:**
 
 `(I go to school) AND ((I study) AND (I exercise))`
 
@@ -38,7 +38,7 @@ We can establish these logical arguments:
 
 `IF (I'm healthy) THEN (I'm happy) OR (I'm fit)`
 
-Then we can validate any proposition we want based on them:
+**Then we can validate any proposition we want based on them:**
 
 (I'm sick) -----> `False`
 
@@ -66,7 +66,7 @@ Simple expressions: `(expression)`
 
 AND arguments: `(expression1) AND (expression2)`
 
-OR arguments: `(expression1) AND (expression2)`
+OR arguments: `(expression1) OR (expression2)`
 
 NOT arguments: `(NOT expression)`
 
