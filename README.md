@@ -2,6 +2,7 @@
 
 <p align="center">
 <img src="logo.png">
+<caption align="bottom">caption text</caption>
 </p>
 
 ## Description
@@ -26,15 +27,18 @@ We can establish these logical arguments:
 
 `IF (I exercise) THEN (I'm healthy)`
 
-`(I study) OR (I'm healthy)`
+`IF (I'm healthy) THEN (NOT I'm sick)`
+
+`(I study) OR (I'm sick)`
 
 `(NOT it rains today)`
 
-`(I become sick) OR (IF (I exercise) THEN (I'm healthy))`
+`(I study) AND ((I go to gym) OR (I drink a coffee))`
 
-`(it rains today) OR (I exercise)`
+`(it rains today) OR ((I exercise) AND (I study))`
 
-`IF (I'm healthy) THEN ((I'm happy) OR (I'm fit))`
+`IF (I'm healthy) THEN (I'm happy) OR (I'm fit)`
 
 Now we can validate them:
+
 (I go to school) -----> `True`
