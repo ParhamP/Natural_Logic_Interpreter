@@ -109,7 +109,7 @@ Python 3.5
 
 ## Install and Usage
 
-Download or clone the repo and click on the executable file in the folder called "NLI" to enter an interactive command line interface.
+Download or clone the repo and click on the executable python file called "NLI" to enter an interactive command line interface.
 
 ## Syntax Conventions
 
