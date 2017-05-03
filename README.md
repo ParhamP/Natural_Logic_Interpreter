@@ -5,7 +5,7 @@
 </p>
 
 ## Description
-NLI automatically interprets and validates nested natural logical arguments 
+Natural Logic Interpreter automatically interprets and validates nested natural logical arguments 
 (logical arguments expressed in natural language) based
 on rules of inference and propositional logic. The program uses "divide and conquer" algorithms
 implemented by recursive functions to go through nested logical arguments and to be able to define
