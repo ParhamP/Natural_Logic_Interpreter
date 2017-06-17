@@ -291,7 +291,7 @@ class Definer(Expression):
 
     def and_definer(self):
         """
-        Defines an conjunctive expression into the knowledge dictionary and set
+        Defines a conjunctive expression into the knowledge dictionary and set
         the expression as True.
 
         :return: True
